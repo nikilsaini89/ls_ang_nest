@@ -18,6 +18,10 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./signup.component.css'],
 })
 export class SignupComponent {
+  serverError: string | null = null;
+  successMessage: string | null = null;
+ 
+ 
   constructor(private http : HttpClient){}
  
   userForm: FormGroup = new FormGroup(
@@ -96,15 +100,22 @@ export class SignupComponent {
       this.http.post("http://localhost:3000/auth/signup", formData).subscribe(
         (res) => {
           console.log('Signup Successful', res);
-          this.userForm.get('email')?.setErrors(null); // Clear errors
+          this.successMessage = 'Registration successful! You can now log in.';
+          this.serverError = null;
+          this.userForm.reset();
+          // this.userForm.get('email')?.setErrors(null); // Clear errors
         },
         (error) => {
           if (error.status === 409 && error.error.field === 'email') {
             this.userForm.get('email')?.setErrors({ emailExists: true });
           }
+          else{
+            this.serverError =
+              'An unexpected error occurred. Please try again later.';
+          }
+          this.successMessage = null;
         }
       );
- 
     } else {
       console.log('Form is invalid');
     }
