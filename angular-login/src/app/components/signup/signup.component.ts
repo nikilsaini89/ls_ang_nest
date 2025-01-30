@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -9,6 +9,7 @@ import {
   ValidationErrors,
 } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 // import { ToastrService } from 'ngx-toastr'; // Import ToastrService
  
 @Component({
@@ -17,13 +18,31 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.css'],
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit {
+  constructor(private http : HttpClient, private router: Router){}
+
+  ngOnInit(): void {
+    const token = localStorage.getItem("access_token")
+    if (token) {
+        this.http.get('http://localhost:3000/auth/verify-token', {
+          headers: {
+            Authorization: `Bearer ${token}`, // Attach token to request
+          },
+        }).subscribe(
+          (response) => {
+            this.router.navigate(['/dashboard'])
+          },
+          (error) => {
+            localStorage.removeItem('access_token');
+            this.router.navigate(['/login']);
+          }
+        );
+    }  
+  }
+  
   serverError: string | null = null;
   successMessage: string | null = null;
- 
- 
-  constructor(private http : HttpClient){}
- 
+  
   userForm: FormGroup = new FormGroup(
     {
       firstName: new FormControl('', [
@@ -83,9 +102,7 @@ export class SignupComponent {
  
       console.log('Form is valid');
       console.log(this.userForm.value);
- 
- 
- 
+
       const formData = {
         firstname: this.userForm.value.firstName,
         lastname: this.userForm.value.lastName,

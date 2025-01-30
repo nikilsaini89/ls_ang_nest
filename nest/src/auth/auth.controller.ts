@@ -24,4 +24,9 @@ export class AuthController {
     async dashboard():  Promise<User[]>{
         return this.authService.getTable()
     }
+    @UseGuards(AuthGuard)
+    @Get('verify-token')
+    async verifytoken(){
+        
+    }
 }

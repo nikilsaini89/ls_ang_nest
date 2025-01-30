@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -8,7 +8,7 @@ import {
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 
@@ -18,8 +18,28 @@ import { Router } from '@angular/router';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   constructor(private http : HttpClient, private router : Router){}
+
+  ngOnInit(): void {
+    console.log('Login page initialised')
+    const token = localStorage.getItem("access_token")
+    if (token) {
+        this.http.get('http://localhost:3000/auth/verify-token', {
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          },
+        }).subscribe(
+          (response) => {
+            this.router.navigate(['/dashboard'])
+          },
+          (error) => {
+            localStorage.removeItem('access_token');
+            this.router.navigate(['/login']);
+          }
+        );
+    }  
+  }
 
   loginForm: FormGroup = new FormGroup({
     email: new FormControl('', [

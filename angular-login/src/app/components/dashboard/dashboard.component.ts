@@ -24,7 +24,7 @@ export class DashboardComponent implements OnInit {
     if (!token) {
       console.error('No token found!');
       this.router.navigate(['/login']); // Redirect if token is missing
-      return;
+      return;4
     }
 
     // Set up headers with the token
